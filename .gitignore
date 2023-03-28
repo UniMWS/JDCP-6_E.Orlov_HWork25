@@ -1,0 +1,22 @@
+# JDCP-6_E.Orlov
+# должны игнорироваться файлы идеи (правила *.iml и .idea)
+*.iml
+.idea
+# папки для автогенерируемых результатов сборки (out, позже - target)
+out
+target
+# Архивы
+*.zip
+*.rar
+
+# for Gradle:
+.gradle
+build/
+# Ignore Gradle GUI config
+gradle-app.setting
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+# Cache of project
+.gradletasknamecache
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties

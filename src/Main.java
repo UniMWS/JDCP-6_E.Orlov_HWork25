@@ -1,9 +1,11 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Scanner;
 
 public class Main {
-    public static File textFileMain = new File("basket.txt");
+    public static File binFileMain = new File("basket.bin");
     public static String[] products = {"Молоко", "Хлеб", "Гречневая крупа"};
     public static int[] prices = {50, 14, 80};
 
@@ -11,16 +13,18 @@ public class Main {
         System.out.println("JDCP-6 + Евгений Орлов + ДЗ-23 + " +
                 "Потоки ввода-вывода. Работа с файлами. Сериализация");
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Задача 1\n");
+
+        System.out.println("Задача 2\n");
         Basket basket;
-        if (textFileMain.exists()) {// проверка существования файла
+        if (binFileMain.exists()) {// проверка существования файла
+            basket = Basket.loadFromBinFile(binFileMain);
             System.out.println("Корзина уже существует и будет использована:");
-            basket = Basket.loadFromTxtFile(textFileMain);//загрузка корзины из файла
             basket.printCart();
         } else {
             System.out.print("Корзина пуста. ");
             basket = new Basket(products, prices);
         }
+
         groceryList(basket);// список продуктов
         while (true) {
             System.out.println("\nВыберите товар и количество через пробел " +
@@ -43,7 +47,7 @@ public class Main {
                     int productNumber = Integer.parseInt(parts[0]) - 1;//номер продукта
                     int productCount = Integer.parseInt(parts[1]);//штук продукта
                     basket.addToCart(productNumber, productCount);// ушло в корзину
-                    basket.saveTxt(textFileMain);// корзина ушла в файл
+                    basket.saveBin(binFileMain);// весь объект basket ушёл в файл
                 } else
                     System.out.println(String.format("Количество товара не может быть отрицательным" +
                             " '%s'", Integer.parseInt(parts[1])));

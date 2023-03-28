@@ -50,21 +50,19 @@ public class Basket implements Serializable {
     }
 
     public static Basket loadFromTxtFile(File textFile) {
-        String[] productsLoad;
-        int[] pricesLoad;
-        int[] amountsLoad;
         try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
-            productsLoad = (br.readLine()).split(" ");     // первая строка файла
-            String[] interim2 = (br.readLine()).split(" ");// вторая строка файла
-            pricesLoad = new int[productsLoad.length];
-            for (int i = 0; i < interim2.length; i++) {
-                pricesLoad[i] = Integer.parseInt(interim2[i]);
-            }
-            String[] interim3 = (br.readLine()).split(" ");// третья строка файла
-            amountsLoad = new int[interim3.length];
-            for (int i = 0; i < interim3.length; i++) {
-                amountsLoad[i] = Integer.parseInt(interim3[i]);
-            }
+            // первая строка файла
+            String[] productsLoad = (br.readLine()).split(" ");
+            // вторая строка файла
+            int[] pricesLoad = Arrays.stream((br.readLine()).split(" "))
+                    .map(Integer::parseInt)
+                    .mapToInt(Integer::intValue)
+                    .toArray();
+            // третья строка файла
+            int[] amountsLoad = Arrays.stream((br.readLine()).split(" "))
+                    .map(Integer::parseInt)
+                    .mapToInt(Integer::intValue)
+                    .toArray();
             return new Basket(productsLoad, pricesLoad, amountsLoad);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());

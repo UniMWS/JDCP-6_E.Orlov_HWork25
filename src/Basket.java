@@ -1,8 +1,7 @@
 import java.io.*;
 import java.util.Arrays;
 
-public class Basket implements Serializable {
-    private static final long serialVersionUID = 1973L;
+public class Basket{
     private String[] productsBasket;
     private int[] pricesBasket;
     private int[] amountsBasket;
@@ -38,12 +37,13 @@ public class Basket implements Serializable {
 
     public void saveTxt(File textFile) throws FileNotFoundException {
         try (PrintWriter out = new PrintWriter(textFile)) {
-            for (var product : productsBasket)
-                out.print(product + " ");
-            out.println();
-            for (var price : pricesBasket)
-                out.print(price + " ");
-            out.println();
+            // первая строка
+            out.println(String.join(" ", productsBasket));
+            // вторая строка
+            out.println(String.join(" ", Arrays.stream(pricesBasket)
+                    .mapToObj(String::valueOf)
+                    .toArray(String[]::new)));
+            // третья строка
             for (var amount : amountsBasket)
                 out.print(amount + " ");
         }
@@ -63,6 +63,7 @@ public class Basket implements Serializable {
                     .map(Integer::parseInt)
                     .mapToInt(Integer::intValue)
                     .toArray();
+            // возврат new Basket по второму конструктору
             return new Basket(productsLoad, pricesLoad, amountsLoad);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());

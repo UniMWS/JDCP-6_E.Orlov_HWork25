@@ -2,57 +2,50 @@ import java.io.*;
 import java.util.Arrays;
 
 public class Basket implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1973L;
     private String[] productsBasket;
     private int[] pricesBasket;
     private int[] amountsBasket;
-    private int summaryBasket;
 
     public Basket(String[] productsBasket, int[] pricesBasket) {
         this.productsBasket = productsBasket;
         this.pricesBasket = pricesBasket;
         this.amountsBasket = new int[productsBasket.length];
-        this.summaryBasket = 0;
     }
 
-    public Basket(String[] productsBasket, int[] pricesBasket, int[] amountsBasket, int summaryBasket) {
+    public Basket(String[] productsBasket, int[] pricesBasket, int[] amountsBasket) {
         this.productsBasket = productsBasket;
         this.pricesBasket = pricesBasket;
         this.amountsBasket = amountsBasket;
-        this.summaryBasket = summaryBasket;
     }
 
     public void addToCart(int productNum, int amount) {
-        int currentPrice = pricesBasket[productNum];  //цена выбранного продукта
         amountsBasket[productNum] += amount;
-        summaryBasket += currentPrice * amount;
     }
 
     public void printCart() {
+        int summaryBasket = 0;
         for (int i = 0; i < amountsBasket.length; i++) {
             if (!(amountsBasket[i] == 0)) {
+                int currentPrice = (amountsBasket[i] * pricesBasket[i]);
+                summaryBasket += currentPrice;
                 System.out.printf("%s %d шт. по %d руб./шт. - %d руб в сумме; \n",
-                        productsBasket[i], amountsBasket[i], pricesBasket[i],
-                        (amountsBasket[i] * pricesBasket[i]));
+                        productsBasket[i], amountsBasket[i], pricesBasket[i], currentPrice);
             }
         }
         System.out.printf("Итого: %d руб. \n", summaryBasket);
     }
 
-    public void saveTxt(File textFile) {
+    public void saveTxt(File textFile) throws FileNotFoundException {
         try (PrintWriter out = new PrintWriter(textFile)) {
-            for (String product : productsBasket)
+            for (var product : productsBasket)
                 out.print(product + " ");
             out.println();
-            for (int price : pricesBasket)
+            for (var price : pricesBasket)
                 out.print(price + " ");
             out.println();
-            for (int amount : amountsBasket)
+            for (var amount : amountsBasket)
                 out.print(amount + " ");
-            out.print("\n" + summaryBasket);
-            out.flush();
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
         }
     }
 
@@ -60,7 +53,6 @@ public class Basket implements Serializable {
         String[] productsLoad;
         int[] pricesLoad;
         int[] amountsLoad;
-        int summaryLoad;
         try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
             productsLoad = (br.readLine()).split(" ");     // первая строка файла
             String[] interim2 = (br.readLine()).split(" ");// вторая строка файла
@@ -73,8 +65,7 @@ public class Basket implements Serializable {
             for (int i = 0; i < interim3.length; i++) {
                 amountsLoad[i] = Integer.parseInt(interim3[i]);
             }
-            summaryLoad = Integer.parseInt(br.readLine());       // четвертая строка файла
-            return new Basket(productsLoad, pricesLoad, amountsLoad, summaryLoad);
+            return new Basket(productsLoad, pricesLoad, amountsLoad);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -86,7 +77,6 @@ public class Basket implements Serializable {
         return "Basket:" +
                 "\nproductsBasket=" + Arrays.toString(productsBasket) +
                 "\npricesBasket=" + Arrays.toString(pricesBasket) +
-                "\namounts=" + Arrays.toString(amountsBasket) +
-                "\nsummary=" + summaryBasket;
+                "\namounts=" + Arrays.toString(amountsBasket);
     }
 }

@@ -2,31 +2,29 @@ import java.io.*;
 import java.util.Arrays;
 
 public class Basket implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1973L;
     private String[] productsBasket;
     private int[] pricesBasket;
     private int[] amountsBasket;
-    private int summaryBasket;
 
     public Basket(String[] productsBasket, int[] pricesBasket) {
         this.productsBasket = productsBasket;
         this.pricesBasket = pricesBasket;
         this.amountsBasket = new int[productsBasket.length];
-        this.summaryBasket = 0;
     }
 
     public void addToCart(int productNum, int amount) {
-        int currentPrice = pricesBasket[productNum];  //цена выбранного продукта
         amountsBasket[productNum] += amount;
-        summaryBasket += currentPrice * amount;
     }
 
     public void printCart() {
+        int summaryBasket = 0;
         for (int i = 0; i < amountsBasket.length; i++) {
             if (!(amountsBasket[i] == 0)) {
+                int currentPrice = (amountsBasket[i] * pricesBasket[i]);
+                summaryBasket += currentPrice;
                 System.out.printf("%s %d шт. по %d руб./шт. - %d руб в сумме; \n",
-                        productsBasket[i], amountsBasket[i], pricesBasket[i],
-                        (amountsBasket[i] * pricesBasket[i]));
+                        productsBasket[i], amountsBasket[i], pricesBasket[i], currentPrice);
             }
         }
         System.out.printf("Итого: %d руб. \n", summaryBasket);
@@ -35,18 +33,17 @@ public class Basket implements Serializable {
     public void saveBin(File file) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(this);
-            oos.flush();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Basket loadFromBinFile(File file) {
-        Basket basket = null;
+        Basket basket;
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             basket = (Basket) ois.readObject();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return basket;
     }
@@ -56,7 +53,6 @@ public class Basket implements Serializable {
         return "Basket:" +
                 "\nproductsBasket=" + Arrays.toString(productsBasket) +
                 "\npricesBasket=" + Arrays.toString(pricesBasket) +
-                "\namounts=" + Arrays.toString(amountsBasket) +
-                "\nsummary=" + summaryBasket;
+                "\namounts=" + Arrays.toString(amountsBasket);
     }
 }

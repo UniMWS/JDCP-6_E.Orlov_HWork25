@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.Arrays;
 
-public class Basket{
+public class Basket {
     private String[] productsBasket;
     private int[] pricesBasket;
     private int[] amountsBasket;

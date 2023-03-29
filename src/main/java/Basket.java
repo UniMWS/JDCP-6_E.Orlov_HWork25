@@ -9,15 +9,16 @@ public class Basket {
     private int[] pricesBasket;
     private int[] amountsBasket;
 
-    public Basket() {
-    }
-
     public Basket(String[] productsBasket, int[] pricesBasket) {
         this.productsBasket = productsBasket;
         this.pricesBasket = pricesBasket;
         this.amountsBasket = new int[productsBasket.length];
     }
-
+    public Basket(String[] productsBasket, int[] pricesBasket, int[] amountsBasket) {
+        this.productsBasket = productsBasket;
+        this.pricesBasket = pricesBasket;
+        this.amountsBasket = amountsBasket;
+    }
     public void addToCart(int productNum, int amount) {
         amountsBasket[productNum] += amount;
     }
@@ -35,7 +36,42 @@ public class Basket {
         System.out.printf("Итого: %d руб. \n", summaryBasket);
     }
 
-    // переделать бы в JSON как-то - не в этой жизни
+    public void saveTxt(File textFile) throws FileNotFoundException {
+        try (PrintWriter out = new PrintWriter(textFile)) {
+            // первая строка
+            out.println(String.join(" ", productsBasket));
+            // вторая строка
+            out.println(String.join(" ", Arrays.stream(pricesBasket)
+                    .mapToObj(String::valueOf)
+                    .toArray(String[]::new)));
+            // третья строка
+            for (var amount : amountsBasket)
+                out.print(amount + " ");
+        }
+    }
+
+    public static Basket loadFromTxtFile(File textFile) {
+        try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
+            // первая строка файла
+            String[] productsLoad = (br.readLine()).split(" ");
+            // вторая строка файла
+            int[] pricesLoad = Arrays.stream((br.readLine()).split(" "))
+                    .map(Integer::parseInt)
+                    .mapToInt(Integer::intValue)
+                    .toArray();
+            // третья строка файла
+            int[] amountsLoad = Arrays.stream((br.readLine()).split(" "))
+                    .map(Integer::parseInt)
+                    .mapToInt(Integer::intValue)
+                    .toArray();
+            // возврат new Basket по второму конструктору
+            return new Basket(productsLoad, pricesLoad, amountsLoad);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return null;
+    }
+
     public void saveToJSON(File textFile) throws IOException {
         FileWriter fileWriter = new FileWriter(textFile);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -47,18 +83,6 @@ public class Basket {
         Gson gson = new Gson();
         FileReader fileReader = new FileReader(textFile);
         return gson.fromJson(fileReader, Basket.class);
-    }
-
-    public String[] getProductsBasket() {
-        return productsBasket;
-    }
-
-    public int[] getPricesBasket() {
-        return pricesBasket;
-    }
-
-    public int[] getAmountsBasket() {
-        return amountsBasket;
     }
 
     @Override

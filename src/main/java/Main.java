@@ -1,33 +1,22 @@
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static File logFile = new File("log.csv");
     public static File jsonFile = new File("basket.json");
-    public static File jsonFileTmp = new File("basketTmp.json");// кривая попытка
+    public static File logFile = new File("log.csv");
+    public static File textFileMain = new File("basket.txt");
     public static String[] products = {"Молоко", "Хлеб", "Гречневая крупа"};
     public static int[] prices = {50, 14, 80};
 
     public static void main(String[] args) throws IOException {
-        System.out.println("JDCP-6 + Евгений Орлов + ДЗ-23 + " +
-                "Потоки ввода-вывода. Работа с файлами. Сериализация");
+        System.out.println("JDCP-6 + Евгений Орлов + ДЗ-25 + " +
+                "Работа с файлами CSV, XML, JSON");
         Scanner scanner = new Scanner(System.in);
         System.out.println("Задача 1\n");
-        Basket basket = new Basket();
+        Basket basket;
         ClientLog clientLog = new ClientLog();
-
-        // не знаю как JSON в Main, так что только GSON в Basket
-        JSONObject basketJson = new JSONObject();
-        JSONParser basketParser = new JSONParser();
-        // не работает, потому что saveBasketJSON кривой
-//        parserBasketJSON(basketParser, jsonFileTmp);
 
         if (jsonFile.exists()) {// проверка существования файла
             System.out.println("Корзина уже существует и будет использована:");
@@ -59,6 +48,7 @@ public class Main {
                     int productNumber = Integer.parseInt(parts[0]) - 1;//номер продукта
                     int productCount = Integer.parseInt(parts[1]);//штук продукта
                     basket.addToCart(productNumber, productCount);// ушло в корзину
+//                    basket.saveTxt(textFileMain);// корзина ушла в файл
                     basket.saveToJSON(jsonFile);
                     clientLog.log(productNumber + 1, productCount);
                 } else
@@ -72,35 +62,8 @@ public class Main {
         System.out.println("Ваша корзина:");
         basket.printCart();// печать корзины
         clientLog.exportAsCSV(logFile);
-        // кривой "basketTmp.json"
-        saveBasketJSON(basket, basketJson, jsonFileTmp);
     }
 
-    // не знаю как JSON, так что только GSON
-    private static void saveBasketJSON(Basket basket, JSONObject basketJson, File textFile) {
-        basketJson.put("productsBasket", basket.getProductsBasket());
-        basketJson.put("pricesBasket", basket.getPricesBasket());
-        basketJson.put("amountsBasket", basket.getAmountsBasket());
-        try (FileWriter fileWriter = new FileWriter(textFile)) {
-            fileWriter.write(basketJson.toJSONString());
-            fileWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // не знаю как JSON, так что только GSON
-    private static JSONObject parserBasketJSON(JSONParser basketParser, File textFile)
-            throws IOException {
-        try {
-            Object obj = basketParser.parse(new FileReader(textFile));
-            return (JSONObject) obj;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // список продуктов
     private static void groceryList(Basket basket) throws IOException {
         System.out.println("Список доступных для покупки продуктов:");
         for (int i = 0; i < products.length; i++) {

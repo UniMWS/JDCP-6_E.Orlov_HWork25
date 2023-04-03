@@ -1,31 +1,29 @@
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static File jsonFile = new File("basket.json");
-    public static File logFile = new File("log.csv");
-    public static File textFileMain = new File("basket.txt");
     public static String[] products = {"Молоко", "Хлеб", "Гречневая крупа"};
     public static int[] prices = {50, 14, 80};
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
         System.out.println("JDCP-6 + Евгений Орлов + ДЗ-25 + " +
                 "Работа с файлами CSV, XML, JSON");
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Задача 1\n");
-        Basket basket;
+        System.out.println("Задача 2\n");
+
+        SetFromXML setFromXML = new SetFromXML(new File("shop.xml"));
+        File loadFile = new File(setFromXML.loadFile);
+        File saveFile = new File(setFromXML.saveFile);
+        File logFile = new File(setFromXML.logFile);
+
+        Basket basket = selectBasket(loadFile, setFromXML.isLoad, setFromXML.loadFormat);
         ClientLog clientLog = new ClientLog();
 
-        if (jsonFile.exists()) {// проверка существования файла
-            System.out.println("Корзина уже существует и будет использована:");
-            basket = Basket.loadFromJSON(jsonFile);//загрузка корзины из файла
-            basket.printCart();
-        } else {
-            System.out.print("Корзина пуста. ");
-            basket = new Basket(products, prices);
-        }
         groceryList(basket);// список продуктов
         while (true) {
             System.out.println("\nВыберите товар и количество через пробел " +
@@ -48,8 +46,12 @@ public class Main {
                     int productNumber = Integer.parseInt(parts[0]) - 1;//номер продукта
                     int productCount = Integer.parseInt(parts[1]);//штук продукта
                     basket.addToCart(productNumber, productCount);// ушло в корзину
-//                    basket.saveTxt(textFileMain);// корзина ушла в файл
-                    basket.saveToJSON(jsonFile);
+                    if (setFromXML.isSave) {
+                        switch (setFromXML.saveFormat) {
+                            case "json" -> basket.saveToJSON(saveFile);
+                            case "txt" -> basket.saveTxt(saveFile);
+                        }
+                    }
                     clientLog.log(productNumber + 1, productCount);
                 } else
                     System.out.println(String.format("Количество товара не может быть отрицательным" +
@@ -61,7 +63,25 @@ public class Main {
         }
         System.out.println("Ваша корзина:");
         basket.printCart();// печать корзины
-        clientLog.exportAsCSV(logFile);
+        if (setFromXML.isLog) clientLog.exportAsCSV(logFile);
+    }
+
+    private static Basket selectBasket(File loadFile, boolean isLoad, String loadFormat)
+            throws FileNotFoundException {
+        Basket basket;
+        if (isLoad && loadFile.exists()) {
+            System.out.println("Корзина уже существует и будет использована:");
+            basket = switch (loadFormat) {
+                case "json" -> Basket.loadFromJSON(loadFile);
+                case "txt" -> Basket.loadFromTxtFile(loadFile);
+                default -> new Basket(products, prices);
+            };
+            basket.printCart();
+        } else {
+            basket = new Basket(products, prices);
+            System.out.print("Корзина не существует или пуста. ");
+        }
+        return basket;
     }
 
     private static void groceryList(Basket basket) throws IOException {

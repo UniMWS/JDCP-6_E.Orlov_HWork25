@@ -12,7 +12,6 @@ public class ClientLog {
 
     }
 
-    // CSVWriter - отказ из-за кавычек
     public void exportAsCSV(File txtFile) throws IOException {
         var writer = new FileWriter(txtFile);
         writer.write(String.valueOf(log));
